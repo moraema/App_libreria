@@ -6,6 +6,8 @@ import 'package:libreria/core/services/local_storage_service.dart';
 import 'package:libreria/features/add_book/domain/entities/book.dart';
 import 'package:libreria/features/add_book/presentation/cubit/add_book_cubit.dart';
 import 'package:libreria/features/add_book/presentation/cubit/add_book_state.dart';
+import 'package:libreria/features/add_book/presentation/widgets/book_form.dart';
+import 'package:libreria/features/add_book/presentation/widgets/add_book_button.dart';
 
 class AddBookPage extends StatefulWidget {
   const AddBookPage({Key? key}) : super(key: key);
@@ -60,10 +62,26 @@ class _AddBookPageState extends State<AddBookPage> {
     super.dispose();
   }
 
+  void _addBook() {
+    final libro = Book(
+      titulo: _tituloController.text.trim(),
+      autor: _autorController.text.trim(),
+      fechaPublicacion: _publicacionController.text.trim(),
+      categoria: _categoriaController.text.trim(),
+      descripcion: _descripcionController.text.trim(),
+      cantidad: int.tryParse(_cantidadController.text.trim()) ?? 0,
+      ubicacion: _ubicacionController.text.trim(),
+      imagenUrl: _imagenUrlController.text.trim(),
+      idUser: _userId,
+    );
+
+    context.read<AddBookCubit>().addBook(libro, _token);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFCF8F3),
+      backgroundColor: const Color(0xFFFFF5E6),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -91,9 +109,9 @@ class _AddBookPageState extends State<AddBookPage> {
             );
             context.go(RouterConstants.home);
           } else if (state is AddBookFailure) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.error)));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.error)),
+            );
           }
         },
         builder: (context, state) {
@@ -109,147 +127,20 @@ class _AddBookPageState extends State<AddBookPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 8),
-                  const Text(
-                    'Detalles del libro',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                  ),
-                  const SizedBox(height: 16),
-                  _CustomInput(
-                    label: 'Título',
-                    hint: 'Título aquí',
-                    icon: Icons.menu_book_outlined,
-                    controller: _tituloController,
-                  ),
-                  const SizedBox(height: 16),
-                  _CustomInput(
-                    label: 'Autor',
-                    hint: 'Nombre del autor',
-                    icon: Icons.person_outline,
-                    controller: _autorController,
-                  ),
-                  const SizedBox(height: 16),
-                  _CustomInput(
-                    label: 'Publicación',
-                    hint: 'Año de publicación aquí',
-                    icon: Icons.date_range_outlined,
-                    controller: _publicacionController,
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 16),
-                  _CustomInput(
-                    label: 'Categoría',
-                    hint: 'Categoría aquí',
-                    icon: Icons.category_outlined,
-                    controller: _categoriaController,
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Descripción',
-                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _descripcionController,
-                    maxLines: 4,
-                    decoration: InputDecoration(
-                      hintText: 'Descripción aquí',
-                      filled: true,
-                      fillColor: const Color(0xFFF6F1ED),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        vertical: 18,
-                        horizontal: 16,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Inventario',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                  ),
-                  const SizedBox(height: 16),
-                  _CustomInput(
-                    label: 'Cantidad',
-                    hint: 'Cantidad aquí',
-                    icon: Icons.tag,
-                    controller: _cantidadController,
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 16),
-                  _CustomInput(
-                    label: 'Ubicación',
-                    hint: 'Ubicación aquí',
-                    icon: Icons.location_on_outlined,
-                    controller: _ubicacionController,
-                  ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Imagen del libro',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                  ),
-                  const SizedBox(height: 16),
-                  _CustomInput(
-                    label: 'URL de la imagen',
-                    hint: 'Pega la URL de la imagen aquí',
-                    icon: Icons.link,
-                    controller: _imagenUrlController,
+                  BookForm(
+                    titleController: _tituloController,
+                    authorController: _autorController,
+                    publicationController: _publicacionController,
+                    categoryController: _categoriaController,
+                    descriptionController: _descripcionController,
+                    quantityController: _cantidadController,
+                    locationController: _ubicacionController,
+                    imageUrlController: _imagenUrlController,
                   ),
                   const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFE56E1A),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        elevation: 0,
-                      ),
-                      onPressed:
-                          isLoading
-                              ? null
-                              : () {
-                                final libro = Book(
-                                  titulo: _tituloController.text.trim(),
-                                  autor: _autorController.text.trim(),
-                                  fechaPublicacion:
-                                      _publicacionController.text.trim(),
-                                  categoria: _categoriaController.text.trim(),
-                                  descripcion:
-                                      _descripcionController.text.trim(),
-                                  cantidad:
-                                      int.tryParse(
-                                        _cantidadController.text.trim(),
-                                      ) ??
-                                      0,
-                                  ubicacion: _ubicacionController.text.trim(),
-                                  imagenUrl: _imagenUrlController.text.trim(),
-                                  idUser: _userId,
-                                );
-
-                                context.read<AddBookCubit>().addBook(
-                                  libro,
-                                  _token,
-                                );
-                              },
-                      child:
-                          isLoading
-                              ? const CircularProgressIndicator(
-                                color: Colors.white,
-                              )
-                              : const Text(
-                                'Agregar libro',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                    ),
+                  AddBookButton(
+                    isLoading: isLoading,
+                    onPressed: _addBook,
                   ),
                   const SizedBox(height: 24),
                 ],
@@ -258,54 +149,6 @@ class _AddBookPageState extends State<AddBookPage> {
           );
         },
       ),
-    );
-  }
-}
-
-class _CustomInput extends StatelessWidget {
-  final String label;
-  final String hint;
-  final IconData icon;
-  final TextInputType? keyboardType;
-  final TextEditingController? controller;
-
-  const _CustomInput({
-    required this.label,
-    required this.hint,
-    required this.icon,
-    this.keyboardType,
-    this.controller,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: controller,
-          keyboardType: keyboardType,
-          decoration: InputDecoration(
-            hintText: hint,
-            filled: true,
-            fillColor: const Color(0xFFF6F1ED),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            prefixIcon: Icon(icon, color: Colors.black45),
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 18,
-              horizontal: 16,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

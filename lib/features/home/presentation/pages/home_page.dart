@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:libreria/core/router/domain/constants/router_constants.dart';
 import 'package:libreria/core/services/local_storage_service.dart';
 import 'package:libreria/features/home/presentation/cubit/get_book_cubit.dart';
-import 'package:libreria/features/home/presentation/cubit/get_book_state.dart';
+import 'package:libreria/features/home/presentation/widgets/home_search_bar.dart';
+import 'package:libreria/features/home/presentation/widgets/books_list.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -41,7 +42,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFCF8F3),
+      backgroundColor: const Color(0xFFFFF5E6),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -66,22 +67,7 @@ class _HomePageState extends State<HomePage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFF2E8DF),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const TextField(
-                decoration: InputDecoration(
-                  hintText: 'Buscar libros',
-                  border: InputBorder.none,
-                  prefixIcon: Icon(Icons.search, color: Color(0xFFBFA181)),
-                ),
-              ),
-            ),
-          ),
+          const HomeSearchBar(),
           const SizedBox(height: 16),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -95,49 +81,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           const SizedBox(height: 12),
-
-          Expanded(
-            child: BlocBuilder<GetBooksCubit, GetBooksState>(
-              builder: (context, state) {
-                if (state is GetBooksLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (state is GetBooksLoaded) {
-                  final books = state.books;
-
-                  if (books.isEmpty) {
-                    return const Center(
-                      child: Text('No hay libros en el inventario'),
-                    );
-                  }
-
-                  return ListView.builder(
-                    itemCount: books.length,
-                    itemBuilder: (context, index) {
-                      final book = books[index];
-                      return GestureDetector(
-                        onTap: () {
-                          context.go(
-                            '${RouterConstants.bookDetails}/${book.id}',
-                          );
-                        },
-                        child: BookInventoryItem(
-                          image: book.imagenUrl,
-                          title: book.titulo,
-                          author: book.autor,
-                          quantity: book.cantidad,
-                          id: book.idUser,
-                        ),
-                      );
-                    },
-                  );
-                } else if (state is GetBooksFailure) {
-                  return Center(child: Text('Error: ${state.error}'));
-                } else {
-                  return const SizedBox.shrink();
-                }
-              },
-            ),
-          ),
+          const BooksList(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -158,80 +102,6 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.logout),
             label: 'Cerrar sesión',
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class BookInventoryItem extends StatelessWidget {
-  final String image;
-  final String title;
-  final String author;
-  final int quantity;
-  final String id;
-
-  const BookInventoryItem({
-    Key? key,
-    required this.image,
-    required this.title,
-    required this.author,
-    required this.quantity,
-    required this.id,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              image,
-              width: 56,
-              height: 72,
-              fit: BoxFit.cover,
-              errorBuilder:
-                  (context, error, stackTrace) =>
-                      const Icon(Icons.broken_image),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Color(0xFF4E342E),
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Cantidad: $quantity',
-                  style: const TextStyle(
-                    color: Color(0xFF00897B),
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                ),
-                Text(
-                  'Autor: $author',
-                  style: const TextStyle(
-                    color: Color(0xFF6D4C41),
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
           ),
         ],
       ),
