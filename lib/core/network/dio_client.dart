@@ -4,7 +4,8 @@ class DioClient {
   final Dio dio;
 
   DioClient({required this.dio}) {
-    dio.options.baseUrl = 'http://192.168.100.19:8080/api';
+    //dio.options.baseUrl = 'http://192.168.100.19:8080/api';
+    dio.options.baseUrl = 'http://44.216.207.182:8080/api';
     dio.options.connectTimeout = const Duration(seconds: 10);
     dio.options.receiveTimeout = const Duration(seconds: 10);
   }
@@ -14,7 +15,7 @@ class DioClient {
   }
 
   Future<Response> authenticate(String path, {dynamic data}) async {
-    return await dio.post(path, data: data); 
+    return await dio.post(path, data: data);
   }
 
   Future<Response> get(String path, {Options? options}) async {
